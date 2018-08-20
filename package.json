@@ -1,0 +1,14 @@
+{
+  "name": "league-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Thai Le",
+  "license": "ISC",
+  "dependencies": {
+    "espn-ff-api": "^1.0.9"
+  }
+}
