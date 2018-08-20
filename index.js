@@ -1,5 +1,5 @@
 const espnFF = require("espn-ff-api");
-const { espnS2, SWID } = require("./config");
+const { espnS2, leagueId, SWID } = require("./config");
 
 const cookies = {
   espnS2,
@@ -7,7 +7,7 @@ const cookies = {
 };
 
 //returns all league matchups in a simplified object
-espnFF.getMatchups(cookies, "761347").then(matchups => {
+espnFF.getMatchups(cookies, leagueId).then(matchups => {
   matchups.map(({ teams, winner, bye }) => {
     console.log(
       `
