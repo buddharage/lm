@@ -9,6 +9,8 @@
   "author": "Thai Le",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.18.0",
+    "axios-mock-adapter": "^1.15.0",
     "espn-ff-api": "^1.0.9"
   }
 }
