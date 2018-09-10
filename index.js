@@ -1,17 +1,11 @@
 const espnFF = require("espn-ff-api");
 const { espnS2, SWID } = require("./config");
 
-if (!process.argv[2] || parseInt(process.argv[2], 10) === "NaN") {
-  throw "Week number required";
-}
-
-const week = process.argv[2];
-
-if (!process.argv[3] || typeof parseInt(process.argv[3], 10) === "NaN") {
+if (!process.argv[2] || typeof parseInt(process.argv[2], 10) === "NaN") {
   throw "League ID required";
 }
 
-const leagueId = process.argv[3];
+const leagueId = process.argv[2];
 
 const cookies = {
   espnS2,
@@ -20,18 +14,17 @@ const cookies = {
 
 const verbs = [
   "punishes :punch:",
-  "crushes",
-  ":walks all over",
-  "destroys",
-  "embarasses",
-  "painals",
-  "opens a can of whoop ass",
-  "pummels",
-  "works over",
-  "cruises by",
-  "easily handles",
-  "mops the floor with",
-  "knocks off"
+  "crushes :hammer:",
+  "walks :walking: all over",
+  ":boom: destroys :boom:",
+  "embarasses :flushed:",
+  "opens a can of :boxing_glove: whoop ass :boxing_glove: on",
+  "pummels :cricket_bat_and_ball",
+  "works over :weary:",
+  "cruises by :car:",
+  ":clap: easily handles :clap:",
+  ":warning: mops the floor with :warning:",
+  "rings the :bell: of"
 ];
 
 //returns all league matchups in a simplified object
@@ -72,7 +65,7 @@ const getMatchups = async (cookies, leagueId) => {
     }, "");
   });
 
-  return `@here: *Week ${week} results*
+  return `@here: *This week's results*
   
   ${results} 
 
