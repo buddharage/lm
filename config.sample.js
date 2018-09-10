@@ -1,4 +1,8 @@
 module.exports = {
   espnS2: "",
-  SWID: ""
+  SWID: "",
+  slack: {
+    hookUrl: "",
+    username: ""
+  }
 };

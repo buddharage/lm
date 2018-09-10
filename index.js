@@ -1,5 +1,10 @@
 const espnFF = require("espn-ff-api");
-const { espnS2, SWID } = require("./config");
+const {
+  espnS2,
+  slack: { hookUrl },
+  SWID
+} = require("./config");
+const axios = require("axios");
 
 if (!process.argv[2] || typeof parseInt(process.argv[2], 10) === "NaN") {
   throw "League ID required";
@@ -12,20 +17,30 @@ const cookies = {
   SWID
 };
 
-const verbs = [
+let verbs = [
   "punishes :punch:",
   "crushes :hammer:",
   "walks :walking: all over",
   ":boom: destroys :boom:",
   "embarasses :flushed:",
   "opens a can of :boxing_glove: whoop ass :boxing_glove: on",
-  "pummels :cricket_bat_and_ball",
+  "pummels :boxing_glove:",
   "works over :weary:",
   "cruises by :car:",
   ":clap: easily handles :clap:",
   ":warning: mops the floor with :warning:",
   "rings the :bell: of"
 ];
+
+const xRatedVerbs = [
+  "massacres :rip:",
+  "curb stomps :boot:",
+  "painals :crying_blood:"
+];
+
+if (process.argv.includes("nsfw")) {
+  verbs = [...verbs, ...xRatedVerbs];
+}
 
 //returns all league matchups in a simplified object
 const getMatchups = async (cookies, leagueId) => {
@@ -36,6 +51,7 @@ const getMatchups = async (cookies, leagueId) => {
     return matchups.reduce((summary, { teams }) => {
       let winner = teams[0];
       let loser = teams[1];
+      let verb = "edges by :knife:";
 
       if (loser.score > winner.score) {
         winner = teams[1];
@@ -57,7 +73,7 @@ const getMatchups = async (cookies, leagueId) => {
   *${winner.team.teamLocation} ${winner.team.teamNickname}* (${
         winner.team.teamAbbrev
       }) ${verb} *${loser.team.teamLocation} ${loser.team.teamNickname}* (${
-        winner.team.teamAbbrev
+        loser.team.teamAbbrev
       })
   ${winner.score} to ${loser.score}
 
@@ -69,42 +85,48 @@ const getMatchups = async (cookies, leagueId) => {
   
   ${results} 
 
+=============================================================
   This week's fantasy king: *${fantasyKing.team.teamLocation} ${
     fantasyKing.team.teamNickname
-  }* (${fantasyKing.team.teamAbbrev})
+  }* (${fantasyKing.team.teamAbbrev}) - ${fantasyKing.score}
   This week's fantasy sacko: *${fantasySacko.team.teamLocation} ${
     fantasySacko.team.teamNickname
-  }* (${fantasySacko.team.teamAbbrev})
+  }* (${fantasySacko.team.teamAbbrev}) - ${fantasySacko.score}
+=============================================================
 `;
 };
 
 function sendToSlack(payload) {
   // Send to Slack
-  return fetch(config.slack.hookUrl, {
-    method: "POST",
-    body: JSON.stringify(payload)
-  })
+  return axios
+    .post(hookUrl, JSON.stringify(payload))
     .then(res => res)
     .then(data => {
+      console.log("send to Slack");
       process.exitCode = 0;
     })
     .catch(e => {
+      console.log("ERROR: send to Slack failed", e);
       process.exitCode = 1;
     });
 }
 
 async function run() {
-  const results = await getMatchups(cookies, leagueId);
+  let results = await getMatchups(cookies, leagueId);
+
+  if (process.argv.includes("plain")) {
+    results = results.replace(/:.*?:/gm, "");
+  }
 
   console.log(results);
 
-  // const payload = {
-  //   emojii: config.slack.emojii,
-  //   username: config.slack.username,
-  //   text: results
-  // };
+  if (leagueId === "599637") {
+    const payload = {
+      text: results
+    };
 
-  // sendToSlack(payload);
+    sendToSlack(payload);
+  }
 
   process.exitCode = 0;
 }
