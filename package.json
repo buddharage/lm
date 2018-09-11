@@ -11,6 +11,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "axios-mock-adapter": "^1.15.0",
-    "espn-ff-api": "^1.0.9"
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "tough-cookie": "^2.4.3"
   }
 }

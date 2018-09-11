@@ -1,4 +1,5 @@
-const espnFF = require("espn-ff-api");
+const espnFF = require("./scoreboard.js");
+
 const {
   espnS2,
   slack: { hookUrl },
@@ -7,7 +8,7 @@ const {
 const axios = require("axios");
 
 if (!process.argv[2] || typeof parseInt(process.argv[2], 10) === "NaN") {
-  throw "League ID required";
+  throw "League ID re quired";
 }
 
 const leagueId = process.argv[2];
@@ -23,13 +24,13 @@ let verbs = [
   "walks :walking: all over",
   ":boom: destroys :boom:",
   "embarasses :flushed:",
-  "opens a can of :boxing_glove: whoop ass :boxing_glove: on",
-  "pummels :boxing_glove:",
-  "works over :weary:",
-  "cruises by :car:",
+  "opens a can of :boxing_glove: whoop ass:boxing_glove: on",
+  "pummels:boxing_glove:",
+  "works over:weary:",
+  "cruises by:car:",
   ":clap: easily handles :clap:",
   ":warning: mops the floor with :warning:",
-  "rings the :bell: of"
+  "rings the bell:bell: of"
 ];
 
 const xRatedVerbs = [
@@ -46,40 +47,56 @@ if (process.argv.includes("nsfw")) {
 const getMatchups = async (cookies, leagueId) => {
   let fantasyKing;
   let fantasySacko;
+  let week = null;
 
-  const results = await espnFF.getMatchups(cookies, leagueId).then(matchups => {
-    return matchups.reduce((summary, { teams }) => {
-      let winner = teams[0];
-      let loser = teams[1];
-      let verb = "edges by :knife:";
+  try {
+    week = /week=(\d+)/gm.exec(
+      process.argv.filter(arg => arg.match("week="))[0]
+    )[1];
+  } catch (e) {
+    console.log(e);
+    throw "week required";
+  }
 
-      if (loser.score > winner.score) {
-        winner = teams[1];
-        loser = teams[0];
-      }
+  if (!week) {
+    throw "week required";
+  }
 
-      if (winner.score - loser.score >= 10)
-        verb = verbs[Math.floor(Math.random() * verbs.length)];
+  const results = await espnFF
+    .getMatchups(cookies, leagueId, week)
+    .then(matchups => {
+      return matchups.reduce((summary, { teams }) => {
+        let winner = teams[0];
+        let loser = teams[1];
+        let verb = "edges by :knife:";
 
-      if (!fantasyKing || winner.score > fantasyKing.score) {
-        fantasyKing = winner;
-      }
+        if (loser.score > winner.score) {
+          winner = teams[1];
+          loser = teams[0];
+        }
 
-      if (!fantasySacko || loser.score < fantasySacko.score) {
-        fantasySacko = loser;
-      }
+        if (winner.score - loser.score >= 10)
+          verb = verbs[Math.floor(Math.random() * verbs.length)];
 
-      return (summary += `
+        if (!fantasyKing || winner.score > fantasyKing.score) {
+          fantasyKing = winner;
+        }
+
+        if (!fantasySacko || loser.score < fantasySacko.score) {
+          fantasySacko = loser;
+        }
+
+        return (summary += `
   *${winner.team.teamLocation} ${winner.team.teamNickname}* (${
-        winner.team.teamAbbrev
-      }) ${verb} *${loser.team.teamLocation} ${loser.team.teamNickname}* (${
-        loser.team.teamAbbrev
-      })
+          winner.team.teamAbbrev
+        }) ${verb} *${loser.team.teamLocation} ${loser.team.teamNickname}* (${
+          loser.team.teamAbbrev
+        })
   ${winner.score} to ${loser.score}
 
 `);
-    }, "");
-  });
+      }, "");
+    });
 
   return `@here: *This week's results*
   
