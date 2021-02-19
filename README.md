@@ -1,6 +1,11 @@
 # League Manager
 
-Easy way to broadcast updates for fantasy football.
+Broadcast your fantasy football leagues' weekly updates to Slack from the following providers:
+
+- [ESPN](http://www.espn.com/espn/apps/download?app=fantasy)
+- [Sleeper](https://sleeper.app/)
+
+## Getting Started
 
 # TO DO:
 
